@@ -5,9 +5,12 @@ edition = "2021"
 
 [workspace]
 members = [
-  "desintegrate",
+  "circle-packing",
 ]
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 nannou = "0.18"
+
+[[bin]]
+name = "circle-packing"
+path = "./circle-packing/src/main.rs"
