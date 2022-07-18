@@ -11,3 +11,7 @@ Then run a specific target
 ```
 cargo run -r --bin <name-of-project>
 ```
+You can check available projects by running
+```
+cargo run -p
+```
