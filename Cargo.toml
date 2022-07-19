@@ -6,6 +6,7 @@ edition = "2021"
 [workspace]
 members = [
   "circle-packing",
+  "pattern1",
 ]
 
 [dependencies]
@@ -14,3 +15,7 @@ nannou = "0.18"
 [[bin]]
 name = "circle-packing"
 path = "./circle-packing/src/main.rs"
+
+[[bin]]
+name = "pattern1"
+path = "./pattern1/src/main.rs"
