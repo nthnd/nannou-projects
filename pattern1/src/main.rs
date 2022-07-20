@@ -1,10 +1,11 @@
 use nannou::prelude::*;
-
+mod shape;
+use shape::Shape;
 fn main() {
     nannou::app(model).update(update).run();
 }
 
-struct Settings {
+pub struct Settings {
     rows: usize,
     columns: usize,
     w: f32,
@@ -12,96 +13,6 @@ struct Settings {
     sw: f32,
 }
 
-struct Shape {
-    origin: Vec2,
-    size: f32,
-    orientation: i32,
-    color: Rgb8,
-}
-impl Shape {
-    fn new(o: Vec2, s: f32) -> Self {
-        Shape {
-            origin: o,
-            size: s,
-            orientation: random_range(0, 4),
-            color: if random::<bool>() {
-                srgb8(0, 0, 0)
-            } else {
-                srgb8(255, 255, 255)
-            },
-        }
-    }
-    fn draw(&self, draw: &Draw, sw: f32) {
-        match self.orientation {
-            0 => {
-                draw.line()
-                    .weight(sw)
-                    .start(vec2(self.origin.x, self.origin.y + self.size))
-                    .end(vec2(self.origin.x + self.size, self.origin.y));
-                draw.line()
-                    .weight(sw)
-                    .start(vec2(self.origin.x, self.origin.y - self.size))
-                    .end(vec2(self.origin.x - self.size, self.origin.y));
-            }
-
-            1 => {
-                draw.line()
-                    .weight(sw)
-                    .start(vec2(self.origin.x, self.origin.y + self.size))
-                    .end(vec2(self.origin.x - self.size, self.origin.y));
-                draw.line()
-                    .weight(sw)
-                    .start(vec2(self.origin.x, self.origin.y - self.size))
-                    .end(vec2(self.origin.x + self.size, self.origin.y));
-            }
-            3 => {
-                draw.line()
-                    .weight(sw)
-                    .start(vec2(self.origin.x, self.origin.y + self.size))
-                    .end(vec2(self.origin.x, self.origin.y - self.size));
-                draw.line()
-                    .weight(sw)
-                    .start(vec2(self.origin.x + self.size, self.origin.y))
-                    .end(vec2(self.origin.x - self.size, self.origin.y));
-                draw.rect()
-                    .xy(self.origin)
-                    .w_h(self.size, self.size)
-                    .stroke_weight(sw)
-                    .color(self.color);
-            }
-            _ => {
-                draw.line()
-                    .weight(sw)
-                    .start(vec2(self.origin.x, self.origin.y + self.size))
-                    .end(vec2(self.origin.x, self.origin.y - self.size));
-                draw.line()
-                    .weight(sw)
-                    .start(vec2(self.origin.x + self.size, self.origin.y))
-                    .end(vec2(self.origin.x - self.size, self.origin.y));
-                draw.ellipse()
-                    .xy(self.origin)
-                    .radius(self.size * 0.5)
-                    .stroke_weight(sw)
-                    .color(self.color);
-            }
-        }
-    }
-    fn generate_pattern(settings: &Settings) -> Vec<Shape> {
-        let mut shape = Vec::<Shape>::new();
-        for j in 1..settings.rows {
-            for i in 1..settings.columns {
-                shape.push(Shape::new(
-                    vec2(
-                        (i as f32 / settings.columns as f32) * settings.w - settings.w * 0.5,
-                        (j as f32 / settings.rows as f32) * settings.h - settings.h * 0.5,
-                    ),
-                    (settings.w / settings.columns as f32) * 0.5,
-                ));
-            }
-        }
-        shape
-    }
-}
 struct Model {
     shapes: Vec<Shape>,
     settings: Settings,
@@ -115,10 +26,10 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
     let s = Settings {
-        rows: 10,
-        columns: 10,
-        w: 400.0,
-        h: 400.0,
+        rows: 20,
+        columns: 20,
+        w: 500.0,
+        h: 500.0,
         sw: 2.0,
     };
     Model {
