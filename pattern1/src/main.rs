@@ -4,11 +4,13 @@ fn main() {
     nannou::app(model).update(update).run();
 }
 
-const ROWS: usize = 10;
-const COLUMNS: usize = 10;
-const W: f32 = 400.0;
-const H: f32 = 400.0;
-const SW: f32 = 2.0;
+struct Settings {
+    rows: usize,
+    columns: usize,
+    w: f32,
+    h: f32,
+    sw: f32,
+}
 
 struct Shape {
     origin: Vec2,
@@ -23,37 +25,37 @@ impl Shape {
             orientation: random::<bool>(),
         }
     }
-    fn draw(&self, draw: &Draw) {
+    fn draw(&self, draw: &Draw, sw: f32) {
         if self.orientation {
             draw.line()
-                .weight(SW)
+                .weight(sw)
                 .start(vec2(self.origin.x, self.origin.y + self.size))
                 .end(vec2(self.origin.x + self.size, self.origin.y));
             draw.line()
-                .weight(SW)
+                .weight(sw)
                 .start(vec2(self.origin.x, self.origin.y - self.size))
                 .end(vec2(self.origin.x - self.size, self.origin.y));
         } else {
             draw.line()
-                .weight(SW)
+                .weight(sw)
                 .start(vec2(self.origin.x, self.origin.y + self.size))
                 .end(vec2(self.origin.x - self.size, self.origin.y));
             draw.line()
-                .weight(SW)
+                .weight(sw)
                 .start(vec2(self.origin.x, self.origin.y - self.size))
                 .end(vec2(self.origin.x + self.size, self.origin.y));
         }
     }
-    fn generate_pattern() -> Vec<Shape> {
+    fn generate_pattern(settings: &Settings) -> Vec<Shape> {
         let mut shape = Vec::<Shape>::new();
-        for j in 1..ROWS {
-            for i in 1..COLUMNS {
+        for j in 1..settings.rows {
+            for i in 1..settings.columns {
                 shape.push(Shape::new(
                     vec2(
-                        (i as f32 / COLUMNS as f32) * W - W * 0.5,
-                        (j as f32 / ROWS as f32) * H - H * 0.5,
+                        (i as f32 / settings.columns as f32) * settings.w - settings.w * 0.5,
+                        (j as f32 / settings.rows as f32) * settings.h - settings.h * 0.5,
                     ),
-                    (W / COLUMNS as f32) * 0.5,
+                    (settings.w / settings.columns as f32) * 0.5,
                 ));
             }
         }
@@ -62,6 +64,7 @@ impl Shape {
 }
 struct Model {
     shapes: Vec<Shape>,
+    settings: Settings,
 }
 
 fn model(app: &App) -> Model {
@@ -71,25 +74,45 @@ fn model(app: &App) -> Model {
         .view(view)
         .build()
         .unwrap();
+    let s = Settings {
+        rows: 10,
+        columns: 10,
+        w: 400.0,
+        h: 400.0,
+        sw: 2.0,
+    };
     Model {
-        shapes: Shape::generate_pattern(),
+        shapes: Shape::generate_pattern(&s),
+        settings: s,
     }
 }
 
 fn update(_app: &App, _model: &mut Model, _update: Update) {}
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
+    let mut gen_pat = true;
     match key {
-        Key::Space => {
-            model.shapes = Shape::generate_pattern();
+        Key::Space => {}
+        Key::Up => {
+            model.settings.rows += 2;
+            model.settings.columns += 2;
         }
-        _ => {}
+        Key::Down => {
+            model.settings.rows -= 2;
+            model.settings.columns -= 2;
+        }
+        _ => {
+            gen_pat = false;
+        }
+    }
+    if gen_pat {
+        model.shapes = Shape::generate_pattern(&model.settings);
     }
 }
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     frame.clear(WHITE);
     for shape in model.shapes.iter() {
-        shape.draw(&draw);
+        shape.draw(&draw, model.settings.sw);
     }
     draw.to_frame(app, &frame).unwrap();
 }
