@@ -15,35 +15,75 @@ struct Settings {
 struct Shape {
     origin: Vec2,
     size: f32,
-    orientation: bool,
+    orientation: i32,
+    color: Rgb8,
 }
 impl Shape {
     fn new(o: Vec2, s: f32) -> Self {
         Shape {
             origin: o,
             size: s,
-            orientation: random::<bool>(),
+            orientation: random_range(0, 4),
+            color: if random::<bool>() {
+                srgb8(0, 0, 0)
+            } else {
+                srgb8(255, 255, 255)
+            },
         }
     }
     fn draw(&self, draw: &Draw, sw: f32) {
-        if self.orientation {
-            draw.line()
-                .weight(sw)
-                .start(vec2(self.origin.x, self.origin.y + self.size))
-                .end(vec2(self.origin.x + self.size, self.origin.y));
-            draw.line()
-                .weight(sw)
-                .start(vec2(self.origin.x, self.origin.y - self.size))
-                .end(vec2(self.origin.x - self.size, self.origin.y));
-        } else {
-            draw.line()
-                .weight(sw)
-                .start(vec2(self.origin.x, self.origin.y + self.size))
-                .end(vec2(self.origin.x - self.size, self.origin.y));
-            draw.line()
-                .weight(sw)
-                .start(vec2(self.origin.x, self.origin.y - self.size))
-                .end(vec2(self.origin.x + self.size, self.origin.y));
+        match self.orientation {
+            0 => {
+                draw.line()
+                    .weight(sw)
+                    .start(vec2(self.origin.x, self.origin.y + self.size))
+                    .end(vec2(self.origin.x + self.size, self.origin.y));
+                draw.line()
+                    .weight(sw)
+                    .start(vec2(self.origin.x, self.origin.y - self.size))
+                    .end(vec2(self.origin.x - self.size, self.origin.y));
+            }
+
+            1 => {
+                draw.line()
+                    .weight(sw)
+                    .start(vec2(self.origin.x, self.origin.y + self.size))
+                    .end(vec2(self.origin.x - self.size, self.origin.y));
+                draw.line()
+                    .weight(sw)
+                    .start(vec2(self.origin.x, self.origin.y - self.size))
+                    .end(vec2(self.origin.x + self.size, self.origin.y));
+            }
+            3 => {
+                draw.line()
+                    .weight(sw)
+                    .start(vec2(self.origin.x, self.origin.y + self.size))
+                    .end(vec2(self.origin.x, self.origin.y - self.size));
+                draw.line()
+                    .weight(sw)
+                    .start(vec2(self.origin.x + self.size, self.origin.y))
+                    .end(vec2(self.origin.x - self.size, self.origin.y));
+                draw.rect()
+                    .xy(self.origin)
+                    .w_h(self.size, self.size)
+                    .stroke_weight(sw)
+                    .color(self.color);
+            }
+            _ => {
+                draw.line()
+                    .weight(sw)
+                    .start(vec2(self.origin.x, self.origin.y + self.size))
+                    .end(vec2(self.origin.x, self.origin.y - self.size));
+                draw.line()
+                    .weight(sw)
+                    .start(vec2(self.origin.x + self.size, self.origin.y))
+                    .end(vec2(self.origin.x - self.size, self.origin.y));
+                draw.ellipse()
+                    .xy(self.origin)
+                    .radius(self.size * 0.5)
+                    .stroke_weight(sw)
+                    .color(self.color);
+            }
         }
     }
     fn generate_pattern(settings: &Settings) -> Vec<Shape> {
