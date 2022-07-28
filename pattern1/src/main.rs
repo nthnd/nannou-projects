@@ -1,6 +1,7 @@
 use nannou::prelude::*;
 mod shape;
 use shape::Shape;
+
 fn main() {
     nannou::app(model).update(update).run();
 }

@@ -6,8 +6,10 @@ edition = "2021"
 [workspace]
 members = [
   "circle-packing",
+  "fog",
   "pattern1",
   "particle",
+  "snow",
 ]
 
 [dependencies]
